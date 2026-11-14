@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robô Cake</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 22px;
+      background-color: #0b0b14;
+      color: #fff;
+      text-align: center;
+    }
+
+    img {
+      width: 230px;
+      max-width: 100%;
+      margin-bottom: 12px;
+      border-radius: 14px;
+    }
+
+    .slogan {
+      margin-bottom: 26px;
+      color: #ffdd77;
+      font-size: 18px;
+    }
+
+    .card {
+      max-width: 335px;
+      margin: 15px auto;
+      padding: 22px;
+      background-color: #202035;
+      border-radius: 18px;
+    }
+
+    .preco {
+      margin: 11px 0;
+      color: #88ffaa;
+      font-size: 27px;
+    }
+
+    form {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 11px;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    input,
+    select {
+      color: #000;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 13px;
+      background: linear-gradient(90deg, #b242e2, #46c9ff);
+      border-radius: 11px;
+      color: #fff;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    #listaPedidos {
+      max-width: 335px;
+      margin: 32px auto 0;
+      text-align: left;
+    }
+
+    .pedidoItem {
+      margin-bottom: 9px;
+      padding: 11px;
+      background-color: #2c2c44;
+      border-radius: 9px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <img src="WhatsApp%20Image%202026-11-06%20at%2020.50.14.jpeg" alt="Logo Robô Cake">
+  <h1>Robô Cake</h1>
+  <div class="slogan">Sabor que surpreende!</div>
+
+  <main class="card">
+    <h2>Bolo no pote</h2>
+    <p>Sabores: Ninho 💜 e Chocolate 🖤</p>
+    <div class="preco">R$ 6,00 cada</div>
+
+    <form id="formPedido">
+      <label for="nome">Nome do cliente:</label>
+      <input type="text" id="nome" required>
+
+      <label for="whatsCliente">WhatsApp do cliente:</label>
+      <input type="tel" id="whatsCliente" required>
+
+      <label for="sabor">Sabor:</label>
+      <select id="sabor" required>
+        <option value="Ninho">Ninho 💜</option>
+        <option value="Chocolate">Chocolate 🖤</option>
+      </select>
+
+      <label for="qtd">Quantidade:</label>
+      <input type="number" id="qtd" min="1" step="1" value="1" required>
+
+      <button type="submit">Enviar pedido pelo WhatsApp</button>
+    </form>
+  </main>
+
+  <h3>📋 Pedidos salvos neste celular</h3>
+  <div id="listaPedidos"></div>
+
+  <script>
+    const numeroVendedor = "8499646452";
+    const precoUnitario = 6;
+    const form = document.getElementById("formPedido");
+    const lista = document.getElementById("listaPedidos");
+
+    function carregarPedidos() {
+      const pedidos = JSON.parse(localStorage.getItem("pedidosRoboCake") || "[]");
+      lista.replaceChildren();
+
+      pedidos.forEach((pedido, indice) => {
+        const item = document.createElement("div");
+        item.className = "pedidoItem";
+        item.textContent =
+          `Pedido ${indice + 1} — Nome: ${pedido.nome} — WhatsApp: ${pedido.whatsCliente} — ` +
+          `Sabor: ${pedido.sabor} — Quantidade: ${pedido.qtd} — ` +
+          `Total: R$ ${(pedido.qtd * precoUnitario).toFixed(2).replace(".", ",")}`;
+        lista.appendChild(item);
+      });
+    }
+
+    form.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+
+      const nome = document.getElementById("nome").value.trim();
+      const whatsCliente = document.getElementById("whatsCliente").value.trim();
+      const sabor = document.getElementById("sabor").value;
+      const qtd = Number(document.getElementById("qtd").value);
+      const total = qtd * precoUnitario;
+      const pedido = { nome, whatsCliente, sabor, qtd };
+      const pedidos = JSON.parse(localStorage.getItem("pedidosRoboCake") || "[]");
+
+      pedidos.push(pedido);
+      localStorage.setItem("pedidosRoboCake", JSON.stringify(pedidos));
+      carregarPedidos();
+
+      const mensagem =
+        `🤖 NOVO PEDIDO — ROBÔ CAKE\n` +
+        `👤 Nome: ${nome}\n` +
+        `📱 WhatsApp do cliente: ${whatsCliente}\n` +
+        `🧁 Sabor: ${sabor}\n` +
+        `🔢 Quantidade: ${qtd}\n` +
+        `💰 Total: R$ ${total.toFixed(2).replace(".", ",")}\n\n` +
+        `Por favor, confirme o pedido.`;
+
+      window.open(
+        `https://wa.me/${numeroVendedor}?text=${encodeURIComponent(mensagem)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+      form.reset();
+    });
+
+    carregarPedidos();
+  </script>
+</body>
+</html>
